@@ -19,12 +19,14 @@ from .schemas import (
     CampaignResponse, CampaignMetricsResponse, CustomerResponseRequest
 )
 from .auth import JWTAuth, get_test_token
-from .agent.agent import get_agent
+# Lazy import to avoid startup delays
+# from .agent.agent import get_agent
 from .models import (
     QueryHistory, Document, Campaign, CRMLead, CampaignLead,
     CampaignMessage, ScheduledVisit
 )
-from .services.document_service import get_document_service
+# Lazy imports to avoid startup delays
+# from .services.document_service import get_document_service
 from .services.lead_service import LeadService
 from .services.email_service import EmailService
 
