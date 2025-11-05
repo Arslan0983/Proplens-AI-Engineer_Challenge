@@ -191,12 +191,13 @@ class VannaService:
                 return "No results found for your query."
 
 
-# Singleton instance
+# Singleton instance (lazy-loaded to avoid startup timeout)
 _vanna_service = None
 
 def get_vanna_service() -> VannaService:
-    """Get Vanna service instance."""
+    """Get Vanna service instance (lazy-loaded)."""
     global _vanna_service
     if _vanna_service is None:
+        print("Initializing Vanna service (first use)...")
         _vanna_service = VannaService()
     return _vanna_service
