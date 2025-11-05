@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: proplens-ai-agent
+    runtime: python
+    buildCommand: pip install -r requirements.txt && python manage.py migrate && python manage.py collectstatic --noinput
+    startCommand: gunicorn proplens_challenge.wsgi:application --bind 0.0.0.0:$PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: SECRET_KEY
+        sync: false
+      - key: JWT_SECRET_KEY
+        sync: false
+      - key: DEBUG
+        value: "False"
+      - key: ALLOWED_HOSTS
+        value: "*.onrender.com"
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: "gemini-2.5-flash"
+      - key: CHROMADB_API_KEY
+        sync: false
+      - key: CHROMADB_TENANT
+        sync: false
+      - key: CHROMADB_DATABASE
+        sync: false
+      - key: EMBEDDING_MODEL
+        value: "all-MiniLM-L6-v2"
+
