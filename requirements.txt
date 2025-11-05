@@ -10,12 +10,12 @@ psycopg2-binary==2.9.9  # For PostgreSQL (optional, SQLite is default)
 pyjwt==2.8.0
 python-jose[cryptography]==3.3.0
 
-# LangChain and LangGraph (pinned stable versions for faster installs)
+# LangChain and LangGraph (compatible versions - langgraph 0.2.76 excludes langchain-core 0.3.0)
 langchain==0.3.0
 langchain-community==0.3.0
-langchain-core==0.3.0
+langchain-core==0.3.23  # Compatible with langgraph 0.2.76 (0.3.0 is excluded)
 langchain-google-genai==2.0.0  # For Gemini
-langgraph==0.2.28  # For agent orchestration (pinned stable version)
+langgraph==0.2.76  # Latest 0.2.x version
 
 # ChromaDB for Vector Store (used by both Vanna and Document RAG)
 chromadb==1.3.0
