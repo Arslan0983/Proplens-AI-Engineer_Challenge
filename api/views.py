@@ -27,8 +27,8 @@ from .models import (
 )
 # Lazy imports to avoid startup delays
 # from .services.document_service import get_document_service
-from .services.lead_service import LeadService
-from .services.email_service import EmailService
+# from .services.lead_service import LeadService
+# from .services.email_service import EmailService
 
 api_router = Router()
 jwt_auth = JWTAuth()
@@ -199,6 +199,7 @@ def create_campaign(request: HttpRequest, campaign_data: CampaignCreateRequest):
             campaign_leads.append(campaign_lead)
         
         # Generate and send emails
+        from .services.email_service import EmailService
         email_service = EmailService()
         messages_sent = 0
         

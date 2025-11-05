@@ -7,7 +7,8 @@ from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 from ninja import NinjaAPI
-from api.views import api_router
+# Use simplified MVP views for now
+from api.views_mvp import api_router
 
 # Create the main API instance
 api = NinjaAPI(

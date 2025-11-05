@@ -5,7 +5,7 @@ LangGraph agent for routing queries to T2SQL or RAG.
 from typing import Dict, Any, Literal, TypedDict
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import HumanMessage
-from langgraph.graph import StateGraph, END
+from langgraph.graph import StateGraph, START, END
 from django.conf import settings
 from api.services.vanna_service import get_vanna_service
 from api.services.document_service import get_document_service
@@ -170,8 +170,8 @@ def create_agent_graph() -> StateGraph:
     workflow.add_node("t2sql", t2sql_node)
     workflow.add_node("rag", rag_node)
     
-    # Set entry point
-    workflow.set_entry_point("router")
+    # Set entry point - connect START to router
+    workflow.add_edge(START, "router")
     
     # Add conditional edges from router
     workflow.add_conditional_edges(
