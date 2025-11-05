@@ -40,6 +40,7 @@ def submit_query(request: HttpRequest, query_data: QueryRequest):
     Submit a query - the agent figures out if it's a T2SQL or RAG question.
     """
     try:
+        from .agent.agent import get_agent
         agent = get_agent()
         
         initial_state = {
@@ -92,6 +93,7 @@ def upload_document(request: HttpRequest, file):
         full_path = default_storage.path(file_path)
         file_type = Path(filename).suffix.lower().lstrip('.')
         
+        from .services.document_service import get_document_service
         document_service = get_document_service()
         chunk_count = document_service.process_document(full_path, filename)
         
