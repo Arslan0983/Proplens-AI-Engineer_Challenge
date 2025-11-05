@@ -47,6 +47,7 @@ def submit_query(request: HttpRequest, query_data: QueryRequest):
             "metadata": {}
         }
         
+        # Invoke LangGraph agent
         result = agent.invoke(initial_state)
         
         QueryHistory.objects.create(

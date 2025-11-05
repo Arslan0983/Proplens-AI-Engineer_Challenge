@@ -1,0 +1,186 @@
+Project to be done:
+Challenge: Lead nurturing workflow with AI agent 
+
+Sales follow-up personalization using lead context from CRM
+
+Overview
+Property Sales associates need an efficient way to send personalized follow-ups to leads stored in the CRM. This feature enables them to trigger automated, context-aware emails or WhatsApp messages, leveraging past enquiry data from the CRM for personalization.
+Goal for the AI agent solution:
+
+Revive past customer leads from the existing CRM/database for the ongoing sales campaign and convert them into property visits for the target real estate project of this campaign. 
+
+What’s different from existing automation solutions offered by CRMs?
+
+AI agent capability to hyper-personalise the messaging for each customer lead based on the past data available in the CRM (mock sheet shared in this case). Use any information available about their qualitative information (family size etc, unit type preferences - 1 bed, 2 bed, etc, budget, location etc.) to frame this personalized email message that takes into account the features of the project being marketed in this campaign. 
+Key Capabilities of the agentic solution
+    • Enable sales associates to shortlist specific leads based on a given criteria from the CRM & send out hyper-personalized outreach messages as scale with relevant project details by creating a dedicated lead nurturing campaign. 
+    • Hyper-Personalization of the nurturing outreach message is based on lead history and sales preferences and last qualitative context captured about the customer profile, demographics, purchase motive, intent, financing options, etc.
+    • Automation of email message dispatch to the shortlisted CRM leads without manual intervention.
+    • Any customer responses to these nurturing outreach messages are then responded to by the AI agent along with building urgency to consider a purchase and nudge the customer for scheduling a viewing to the property. There could be multiple conversation turns in this process between the customer & the AI sales agent. 
+    • If the customer agrees for a call with a sales advisor or to schedule a property visit appointment, then the AI agents sets up the call/visit and notifies the designated sales associate’s email ID. 
+    • All information is updated in a central lead nurturing campaign dashboard, which would list campaign wise data points around number of leads shortlisted, number of messages sent, no. of responses received and number of visits/calls set up (goal accomplished). 
+User Flow
+    1. Sales associate selects leads
+        ◦ Filters leads based on criteria such as last conversation date, project name enquired previously, budget, unit type, and lead status.
+    2. Sales associate personalizes the message
+        ◦ Selects the project to pitch. (note this is the target project the client is selling. Not to be confused with the project name the customer/lead might have enquired earlier). 
+        ◦ Choose the message channel (limited to email for the purpose of this challenge)
+        ◦ Inputs any special ongoing property sales offer to be highlighted in a text field.
+    3. System sends personalized messages
+        ◦ Messages are automatically generated based on past structured and qualitative data available about the lead in the CRM and dispatched to the selected leads.
+        ◦ The message could be sent over email for the purpose of this challenge. 
+
+Note: This is an important part of the agent. You will have to construct a prompt template to match the customer information including the ‘last conversation summary’ available in the CRM sheet with the project features of the project name targeted in the campaign. 
+    4. Customer responds
+        ◦ Some customers might respond to this nurturing outreach message over email or whatsapp asking for further information or expressing interest for a call or property viewing (goal). 
+    5. System (AI agent) responds back to customer
+        ◦ The AI agent understands the intent of customer response. If the intent is clear that customer has selected a goal outcome already (property viewing/sales call), the agent triggers the notification to the sales team. If the intent involves asking further questions about the property or other properties, the AI agent retrieves relevant information from the database and responds to the customer with the information, while also nudging them towards the goal. 
+User Story 1: Shortlist Leads for Follow-Up
+As a sales associate, I want to filter existing leads from the CRM based on specific criteria so that I can target the right audience for personalized follow-ups.
+Acceptance Criteria:
+    • Sales associate can select leads based on:
+        ◦ Last conversation date (Upto past 3 years). ‘From’ date and ‘To’ date fields to be selected by the user from a calendar UI input. 
+        ◦ Project name enquired. Sample Options in a drop-down include Altura, Beachgate by Address, Damac Bay by Cavalli, DLF West Park, Godrej Vistas, Lumina Grand, Sobha Crest, Sobha Waves. 
+        ◦ Budget range. Min and max budget fields. Open fields for adding custom numbers.
+        ◦ Unit type. Options in a multi-select check-box drop-down include studio, 1 bed, 2 bed, 2 bed w study, 3 bed, 4 bed, Duplex, Penthouse. 
+        ◦ Lead status. Options in a drop-down include Not Connected, Connected, Visit scheduled, Visit done not purchased, Purchased, Not interested. 
+    • All filter fields are optional, allowing flexible lead selection. Condition: at least 2 of the 5 fields need to be selected by the user (sales associate). 
+    • After the user clicks ‘Shortlist leads’ post specifying the criteria, The system retrieves and displays the number of  leads matching the selected filters.
+User Story 2: Customize Follow-Up Message
+As a sales associate, I want to personalize the follow-up message so that it aligns with the lead's past inquiry and highlights relevant offers.
+Acceptance Criteria:
+    • Sales associate can input:
+        ◦ Campaign project name (Dropdown - same list as above)
+        ◦ Nurturing Message channel (Dropdown - select Email or WhatsApp)
+        ◦ Sales offer details (Open text field)
+    • Offer details (if provided) should be included in all messages generated just prior to the goal call to action. 
+User Story 3: Send Automated Follow-Up Messages
+As a sales associate, I want the system to send personalized follow-up messages automatically so that I don’t have to send them manually.
+Acceptance Criteria:
+    • Upon submission, the system sends the message to all shortlisted leads via Email/whatsapp.
+    • Messages are personalized based on the selected campaign project features and the past lead details available in the CRM including the qualitative inputs from the last conversation data, along with the structured data available. 
+    • No manual intervention is required after triggering the follow-up.
+User Story 4: Tracking agent replies to responding customers 
+As a sales associate, I want to track all the AI agent responses to customers responding to these nurturing outreach messages.
+Acceptance Criteria:
+    • Any reply to an email follow-up is captured separately in a Campaign screen, under a ‘Followups’ section. 
+    • The sales associate can select a specific customer (lead) name and then expand to see the full conversation thread between the AI agent and the customer (lead) in a pop-up.
+UI Screens 
+
+Two broad UI sections - Campaign creation & campaign dashboards.
+
+Section 1: Campaign creation:
+
+Screen 1: Shortlist leads for campaign
+
+        ◦ Project name enquired. Sample Options in a drop-down include Altura, Beachgate by Address, Damac Bay by Cavalli, DLF West Park, Godrej Vistas, Lumina Grand, Sobha Crest, Sobha Waves. 
+        ◦ Budget range. Min and max budget fields. Open fields for adding custom numbers.
+        ◦ Unit type. Options in a multi-select check-box drop-down include studio, 1 bed, 2 bed, 2 bed w study, 3 bed, 4 bed, Duplex, Penthouse. 
+        ◦ Lead status. Options in a drop-down include Not Connected, Connected, Visit scheduled, Visit done not purchased, Purchased, Not interested. 
+        ◦ Last conversation date (Upto past 3 years). ‘From’ date and ‘To’ date fields to be selected by the user from a calendar UI input. 
+Screen 2: Set Campaign messaging
+
+Campaign project name (Dropdown - same list as above)
+        ◦ Nurturing Message channel (Dropdown - select Email or WhatsApp)
+        ◦ Campaign project name (Dropdown - same list as above)
+        ◦ Sales offer details (Open text field)
+
+Section 2: Campaign Dashboards
+
+Screen 3: Nurturing Campaign metrics
+
+Drop-down for campaign name on top of screen. For now, keep Nurturing Campaign 1, Nurturing Campaign 2, Nurturing Campaign 3. 
+
+The following metrics are highlighted in key boxes. 
+
+- No. of leads shortlisted from CRM as per criteria
+- No. of messages sent
+- No. of unique leads responded
+- No. of unique leads for which goal is achieved
+
+In the UI, display these metric labels in short form. 
+
+Have a separate section below for Property visit/Call scheduled (goal)
+
+Display all the leads as a list with name, contact details, summary of last nurturing conversation, Date of proposed viewing/call. 
+
+
+Sample UI video of the application
+
+https://screenrec.com/share/zrJFc01I35
+
+
+Notes for the challenge:
+
+    1. You are free to use any AI tool, just capture it in the documentation clearly on AI tools, applications, LLMs used.
+
+    2.  Construct a minimal solution that involves shortlisting leads, generating a hyper-personalized message, send message over email to mock email ID (could be your email to demonstrate) & AI agent ability to respond to a customer response. Sample lead response could be ‘What are the facilities and amenities in this property?’ and the agent is able to understand and respond based on the project brochure data available. 
+    3. Use the project brochure data set folder as the ground truth source for project related data. Feel free to use placeholder pricing, etc. as suitable. 
+
+
+Technical requirements:
+I. Architecture and Communication
+The core requirement is to develop an intelligent agent orchestrated using LangGraph and served by a Python web application.
+    • Application Framework (Choice): The agent service must be hosted within a standard Django Ninja (preferred) OR a Django application (using Django REST Framework). The candidate must clearly state the chosen framework.
+    • Agent Orchestration: The agent's logic and state management must be handled by LangGraph.
+    • Database Flexibility: The relational database can be either PostgreSQL or SQLite. The candidate must clearly document the chosen option.
+    • LLM Choice and Follow-up:
+        ◦ The developer has full flexibility to choose any LLM model or architecture to power the agent.
+        ◦ The developer should expect a follow-up interview to dive deeper into the technical decisions made regarding the LangGraph design and the specific LLM model/architecture selected.
+II. API Design Standards
+The Agent API must strictly follow RESTful best practices and align with industry standards for security and performance.
+    • Resource Naming: Use nouns (plural) for resource collections.
+    • HTTP Methods: Correctly map HTTP methods to actions. A single POST endpoint is expected for submitting a new user query to the agent.
+    • Status Codes: Use appropriate HTTP Status Codes for responses (e.g., 200 OK, 201 Created, 400 Bad Request, 401 Unauthorized, 404 Not Found, 500 Internal Server Error).
+    • Authentication (Mandatory): All communication with API endpoints must be secured using JSON Web Token (JWT) authentication, returning a 401 Unauthorized response if the token is missing or invalid.
+
+III. Agent Capabilities
+The LangGraph agent must function as a router, deciding whether to execute a Text-to-SQL task or a Document RAG task based on the user's query.
+A. Text-to-SQL (T2SQL) Requirement
+The agent must interpret natural language queries into SQL using Vanna.
+    • T2SQL Library: The Vanna framework must be used to provide the Text-to-SQL capability.
+    • Vector Store: ChromaDB must be used as the vector store to host Vanna's training data (DDL, documentation, SQL examples).
+    • Agent Capability: The agent must interpret a natural language query, utilize a Vanna tool to generate and execute the appropriate SQL query against the relational database, and return a meaningful, natural language response based on the result.
+    • Data Handling: The chosen relational database should contain a sample schema and data sufficient to demonstrate the T2SQL capability.
+B. Document RAG Requirement (Brochures)
+The agent must be able to retrieve information directly from provided unstructured documents (brochures).
+    • Vector Store: The processed brochure data must be stored and searched using ChromaDB.
+    • Agent Capability: The LangGraph agent must utilize a Document RAG tool to perform a semantic search against the brochure vectors in ChromaDB, retrieve the most relevant text chunks, and use the LLM to synthesize an accurate, natural language answer.
+IV. Development Requirements
+    • Codebase: A complete, working codebase containing the application framework and the full LangGraph agent.
+    • Dependencies: A clear and reproducible list of project dependencies (e.g., requirements.txt).
+    • Document Ingestion API (Mandatory): A dedicated upload endpoint must be created to handle the ingestion of brochure documents. This endpoint will trigger the following pipeline:
+        1. File Upload: Accepts the brochure file(s).
+        2. Chunking/Splitting: Implements a strategy (e.g., recursive text splitting) to break the brochures into manageable chunks.
+        3. Embedding: Uses an appropriate Embedding Model (must be documented) to convert the text chunks into vectors.
+        4. Storage: Stores these vectors, the original chunks, and relevant metadata in ChromaDB.
+    • Documentation: Clear instructions on environment setup, configuration of both databases, and usage of the Document Ingestion API.
+V. Testing and Evaluation
+A robust testing and evaluation suite is mandatory.
+    • Testing Framework (Mandatory): All tests must be written using Pytest.
+    • Unit/Integration Testing: Thorough tests for the API workflow, Document Upload/Ingestion flow, T2SQL flow, and the Document RAG retrieval and generation.
+    • Agent Evaluation (DeepEval):
+        ◦ The agent's performance must be evaluated using the DeepEval framework.
+    • Evaluation Results: The DeepEval agent score results must be captured and shared in a separate, dedicated file (e.g., agent_evaluation_scores.json).
+    • Reproducibility: The evaluation process must be easily reproducible via a single script or command (e.g., pytest run_eval.py).
+VI. Deployment and Submission
+The final deliverable consists of two parts.
+    • Hosting Platform: The entire application must be deployed to some cloud environment that is public facing. You can use Render (https://render.com/) as a free alternative.
+    • Deployment Status: The deployed application must be live and fully functional upon submission.
+    • Submission Artifacts (Mandatory):
+        1. The live link to the hosted application.
+        2. A ZIP file containing the complete source code for the challenge.
+VII. Bonus Criteria
+Candidates will receive bonus points for excellence in the following areas:
+Criterion
+Description
+Clean Architecture
+Clear separation of concerns (e.g., distinct layers for API views, LangGraph logic, and data ingestion/tools). Proper use of interfaces and abstractions.
+OOP Design
+The project must be structured using classes and follow OOP best practices to enhance modularity and maintainability.
+Documentation
+Comprehensive, clear, and easy-to-follow documentation, particularly for setup, running the agent, and API usage (e.g., using Swagger/OpenAPI, or detailed README).
+Organization & Conciseness
+Logical file structure, idiomatic Python code, effective use of environment variables, and minimizing unnecessary complexity.
+Error Handling
+Robust error handling within the LangGraph nodes and API, especially for database connection failures or LLM tool-calling issues.
