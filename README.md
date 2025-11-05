@@ -39,11 +39,16 @@ Built a lead nurturing system that helps sales associates send personalized foll
 
 6. **Text-to-SQL (T2SQL)**
    - Query CRM leads in plain English
-   - Uses Vanna-style approach with RAG
+   - Uses Vanna framework with RAG
    - Reads the database schema automatically (no manual config needed)
    - Endpoint: `POST /api/queries`
 
-7. **Document RAG**
+7. **Agent Orchestration**
+   - Uses LangGraph StateGraph for routing between T2SQL and RAG
+   - State management handled by LangGraph
+   - Conditional routing based on query intent
+
+8. **Document RAG**
    - Upload project brochures (PDF, DOCX)
    - Semantic search for project info
    - Used for both email generation and answering customer questions
@@ -52,11 +57,11 @@ Built a lead nurturing system that helps sales associates send personalized foll
 ### Tech Stack
 
 - Django Ninja for the API
-- LangGraph-style routing for the agent
-- Google Gemini (gemini-2.5-flash) for LLM
+- LangGraph StateGraph for agent orchestration and state management
+- Google Gemini (gemini-2.0-flash-exp) for LLM
 - ChromaDB Cloud for vector storage
 - SQLite (can switch to PostgreSQL)
-- Vanna-style Text-to-SQL that reads schema automatically
+- Vanna framework for Text-to-SQL with RAG
 - Sentence Transformers for embeddings
 
 **Database Models:**
