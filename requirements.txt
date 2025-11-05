@@ -14,7 +14,7 @@ python-jose[cryptography]==3.3.0
 langchain==0.3.0
 langchain-community==0.3.0
 langchain-core==0.3.23  # Compatible with langgraph 0.2.76 (0.3.0 is excluded)
-langchain-google-genai==2.0.0  # For Gemini
+langchain-google-genai>=2.0.0,<3.0.0  # For Gemini - let it resolve compatible google-generativeai
 langgraph==0.2.76  # Latest 0.2.x version
 
 # ChromaDB for Vector Store (used by both Vanna and Document RAG)
@@ -30,8 +30,8 @@ sentence-transformers==2.2.2  # Free embedding model alternative
 
 # Utilities
 python-dotenv==1.0.0
-pydantic==2.5.3
-pydantic-settings==2.1.0
+pydantic>=2.7.4,<3.0.0  # langchain 0.3.0 requires >=2.7.4, django-ninja requires >=2.0
+pydantic-settings>=2.1.0,<3.0.0  # Must be compatible with pydantic version
 
 # Testing (optional - comment out for production)
 # pytest==7.4.3
@@ -41,8 +41,8 @@ pydantic-settings==2.1.0
 # httpx==0.25.2
 # deepeval>=3.0.0
 
-# Google Generative AI (for Gemini)
-google-generativeai==0.8.3
+# Google Generative AI (for Gemini) - version resolved by langchain-google-genai
+# google-generativeai will be auto-installed by langchain-google-genai
 
 # Vanna AI for Text-to-SQL with RAG
 vanna==0.7.0
