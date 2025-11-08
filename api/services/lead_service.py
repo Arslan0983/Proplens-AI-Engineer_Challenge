@@ -39,22 +39,23 @@ class LeadService:
                 lead_status_col = col_map.get('lead status', 'Lead status')
                 last_conversation_summary_col = col_map.get('last conversation summary', 'Last conversation summary')
                 
-                name = row.get(name_col, '') if pd.notna(row.get(name_col, '')) else ''
-                email = row.get(email_col, '') if pd.notna(row.get(email_col, '')) else ''
-                phone_val = row.get(phone_col, None)
+                # Use direct indexing for pandas Series
+                name = str(row[name_col]) if name_col in row.index and pd.notna(row[name_col]) else ''
+                email = str(row[email_col]) if email_col in row.index and pd.notna(row[email_col]) else ''
+                phone_val = row[phone_col] if phone_col in row.index else None
                 if pd.notna(phone_val):
-                    country_code = row.get(country_code_col, None)
+                    country_code = row[country_code_col] if country_code_col in row.index else None
                     if pd.notna(country_code):
-                        phone = f"+{country_code}{phone_val}"
+                        phone = f"+{int(country_code)}{int(phone_val)}"
                     else:
-                        phone = str(phone_val)
+                        phone = str(int(phone_val))
                 else:
                     phone = None
                 
-                project = row.get(project_col, None) if pd.notna(row.get(project_col, None)) else None
-                unit_type = row.get(unit_type_col, None) if pd.notna(row.get(unit_type_col, None)) else None
-                lead_status = row.get(lead_status_col, None) if pd.notna(row.get(lead_status_col, None)) else None
-                last_conversation_summary = row.get(last_conversation_summary_col, None) if pd.notna(row.get(last_conversation_summary_col, None)) else None
+                project = str(row[project_col]) if project_col in row.index and pd.notna(row[project_col]) else None
+                unit_type = str(row[unit_type_col]) if unit_type_col in row.index and pd.notna(row[unit_type_col]) else None
+                lead_status = str(row[lead_status_col]) if lead_status_col in row.index and pd.notna(row[lead_status_col]) else None
+                last_conversation_summary = str(row[last_conversation_summary_col]) if last_conversation_summary_col in row.index and pd.notna(row[last_conversation_summary_col]) else None
                 
                 lead_data = {
                     'name': name if pd.notna(name) else '',
@@ -72,7 +73,7 @@ class LeadService:
                 
                 # Handle last conversation date
                 last_conv_date_col = col_map.get('last conversation date', 'Last conversation date')
-                last_conv_date = row.get(last_conv_date_col, None)
+                last_conv_date = row[last_conv_date_col] if last_conv_date_col in row.index else None
                 if pd.notna(last_conv_date):
                     if isinstance(last_conv_date, pd.Timestamp):
                         lead_data['last_conversation_date'] = last_conv_date.date()
@@ -88,8 +89,8 @@ class LeadService:
                 # Handle budget - check both min/max budget columns and combined budget column
                 budget_min_col = col_map.get('min. budget', 'Min. Budget')
                 budget_max_col = col_map.get('max budget', 'Max Budget')
-                budget_min = row.get(budget_min_col, None)
-                budget_max = row.get(budget_max_col, None)
+                budget_min = row[budget_min_col] if budget_min_col in row.index else None
+                budget_max = row[budget_max_col] if budget_max_col in row.index else None
                 
                 if pd.notna(budget_min):
                     try:
@@ -112,7 +113,7 @@ class LeadService:
                 
                 # If no separate min/max, try combined budget column
                 if not lead_data.get('budget_min') and not lead_data.get('budget_max'):
-                    budget = row.get('budget', None)
+                    budget = row['budget'] if 'budget' in row.index else None
                     if pd.notna(budget):
                         if isinstance(budget, (int, float)):
                             lead_data['budget_min'] = float(budget)
@@ -126,14 +127,22 @@ class LeadService:
                                 except:
                                     pass
                 
-                # Create or update lead (based on email)
-                lead, created = CRMLead.objects.update_or_create(
-                    email=lead_data['email'],
-                    defaults=lead_data
-                )
+                # Skip if email is empty
+                if not lead_data['email'] or lead_data['email'].strip() == '':
+                    continue
                 
-                if created:
-                    count += 1
+                # Create or update lead (based on email)
+                try:
+                    lead, created = CRMLead.objects.update_or_create(
+                        email=lead_data['email'],
+                        defaults=lead_data
+                    )
+                    
+                    if created:
+                        count += 1
+                except Exception as e:
+                    print(f"Error creating lead {lead_data.get('email', 'unknown')}: {e}")
+                    continue
             
             return count
             
