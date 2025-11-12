@@ -6,11 +6,11 @@ import multiprocessing
 bind = "0.0.0.0:8000"
 
 # Worker processes
-workers = 2  # Keep it low for free tier
+workers = 1  # Use 1 worker for free tier to avoid memory issues
 worker_class = "sync"
 
 # Timeout - increased for heavy initialization
-timeout = 120  # 2 minutes for first request (loading models)
+timeout = 180  # 3 minutes for first request (loading models)
 graceful_timeout = 30
 
 # Logging
