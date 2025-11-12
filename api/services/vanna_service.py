@@ -127,14 +127,20 @@ class VannaService:
             schemas = self._get_database_schema()
             
             for table_name, ddl in schemas.items():
-                # Add DDL to Vanna
-                self.vanna_model.train(ddl=ddl)
-                print(f"  Trained on table: {table_name}")
+                # Add DDL to Vanna - catch errors to prevent blocking
+                try:
+                    self.vanna_model.train(ddl=ddl)
+                    print(f"  Trained on table: {table_name}")
+                except Exception as train_error:
+                    print(f"  ⚠ Failed to train on table {table_name} (non-blocking): {train_error}")
+                    # Continue with other tables instead of crashing
+                    continue
             
-            print("Vanna training completed")
+            print("Vanna training completed (or skipped due to errors)")
             
         except Exception as e:
-            print(f"Error training Vanna: {e}")
+            print(f"⚠ Vanna training error (non-blocking): {e}")
+            # Don't crash - service will work but SQL generation may be limited
             import traceback
             traceback.print_exc()
     

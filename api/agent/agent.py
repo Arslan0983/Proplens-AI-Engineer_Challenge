@@ -89,9 +89,14 @@ def t2sql_node(state: AgentState) -> AgentState:
     try:
         vanna_service = get_vanna_service()
         
+        if vanna_service is None:
+            state["response"] = "Text-to-SQL service is not available. Please try asking about property information instead."
+            state["metadata"] = {"tool": "text_to_sql_tool", "error": "Service unavailable"}
+            return state
+        
         sql = vanna_service.generate_sql(query)
         if not sql:
-            state["response"] = "I couldn't generate a SQL query for your question. Please try rephrasing it."
+            state["response"] = "I couldn't generate a SQL query for your question. Please try rephrasing it or ask about property information instead."
             state["metadata"] = {"tool": "text_to_sql_tool", "error": "SQL generation failed"}
             return state
         
