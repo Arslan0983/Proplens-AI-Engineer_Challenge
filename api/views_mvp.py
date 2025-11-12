@@ -47,24 +47,6 @@ def chat(request: HttpRequest, query_data: QueryRequest):
     - "Show me leads with budget over 1 million"
     """
     try:
-        import signal
-        from contextlib import contextmanager
-        
-        @contextmanager
-        def timeout_handler(seconds):
-            """Handle timeout for agent execution."""
-            def timeout_signal(signum, frame):
-                raise TimeoutError(f"Agent execution timed out after {seconds} seconds")
-            
-            # Set signal handler
-            old_handler = signal.signal(signal.SIGALRM, timeout_signal)
-            signal.alarm(seconds)
-            try:
-                yield
-            finally:
-                signal.alarm(0)
-                signal.signal(signal.SIGALRM, old_handler)
-        
         # Lazy load the agent only when needed
         from .agent.agent import get_agent
         
@@ -75,25 +57,9 @@ def chat(request: HttpRequest, query_data: QueryRequest):
             "metadata": {}
         }
         
-        # Run agent with timeout protection (90 seconds)
-        try:
-            agent = get_agent()
-            # Use timeout only on Linux/Unix (signal.SIGALRM not available on Windows)
-            import sys
-            if sys.platform != 'win32':
-                with timeout_handler(90):
-                    final_state = agent.invoke(initial_state)
-            else:
-                final_state = agent.invoke(initial_state)
-        except TimeoutError as te:
-            return JsonResponse(
-                {
-                    "error": "Request timeout",
-                    "detail": "The query took too long to process. Please try a simpler question or try again.",
-                    "query": query_data.query
-                },
-                status=504
-            )
+        # Run agent - Gunicorn timeout (120s) will handle long requests
+        agent = get_agent()
+        final_state = agent.invoke(initial_state)
         
         # Save to history
         from .models import QueryHistory
