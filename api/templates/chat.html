@@ -313,7 +313,7 @@
                         'Authorization': `Bearer ${token}`
                     },
                     body: JSON.stringify({ query: query }),
-                    signal: AbortSignal.timeout(150000) // 150 second timeout (allow time for initialization)
+                    signal: AbortSignal.timeout(120000) // 120 second timeout
                 });
 
                 // Check if response is ok before parsing JSON
