@@ -129,7 +129,8 @@ def get_document_service() -> DocumentService:
     """Get or create document service instance (lazy-loaded)."""
     global _document_service
     if _document_service is None:
-            logger.info("Initializing Document service (first use)...")
+        logger.info("Initializing Document service (first use)...")
         _document_service = DocumentService()
+        logger.info("Document service initialized successfully")
     return _document_service
 
