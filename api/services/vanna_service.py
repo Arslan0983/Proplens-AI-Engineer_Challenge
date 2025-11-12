@@ -118,10 +118,10 @@ class VannaService:
             # Check if already trained
             training_data = self.vanna_model.get_training_data()
             if training_data and len(training_data) > 0:
-                print(f"Vanna already trained with {len(training_data)} examples")
+                logger.info(f"Vanna already trained with {len(training_data)} examples")
                 return
             
-            print("Training Vanna with database schema...")
+            logger.info("Training Vanna with database schema...")
             
             # Get schema and train with DDL
             schemas = self._get_database_schema()
@@ -130,19 +130,17 @@ class VannaService:
                 # Add DDL to Vanna - catch errors to prevent blocking
                 try:
                     self.vanna_model.train(ddl=ddl)
-                    print(f"  Trained on table: {table_name}")
+                    logger.info(f"  Trained on table: {table_name}")
                 except Exception as train_error:
-                    print(f"  ⚠ Failed to train on table {table_name} (non-blocking): {train_error}")
+                    logger.warning(f"  Failed to train on table {table_name} (non-blocking): {train_error}")
                     # Continue with other tables instead of crashing
                     continue
             
-            print("Vanna training completed (or skipped due to errors)")
+            logger.info("Vanna training completed (or skipped due to errors)")
             
         except Exception as e:
-            print(f"⚠ Vanna training error (non-blocking): {e}")
+            logger.warning(f"Vanna training error (non-blocking): {e}", exc_info=True)
             # Don't crash - service will work but SQL generation may be limited
-            import traceback
-            traceback.print_exc()
     
     def generate_sql(self, question: str) -> Optional[str]:
         """Generate SQL using Vanna framework."""
@@ -153,7 +151,7 @@ class VannaService:
             sql = self.vanna_model.generate_sql(question=question)
             return sql
         except Exception as e:
-            print(f"Error generating SQL with Vanna: {e}")
+            logger.error(f"Error generating SQL with Vanna: {e}", exc_info=True)
             return None
     
     def run_sql(self, sql: str) -> Optional[list]:
@@ -204,6 +202,7 @@ def get_vanna_service() -> VannaService:
     """Get Vanna service instance (lazy-loaded)."""
     global _vanna_service
     if _vanna_service is None:
-        print("Initializing Vanna service (first use)...")
+        logger.info("Initializing Vanna service (first use)...")
         _vanna_service = VannaService()
+        logger.info("Vanna service initialized successfully")
     return _vanna_service

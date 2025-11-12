@@ -1,6 +1,9 @@
 """
 LangGraph agent for routing queries to T2SQL or RAG.
 """
+import logging
+
+logger = logging.getLogger('api.agent')
 
 from typing import Dict, Any, Literal, TypedDict
 from langchain_google_genai import ChatGoogleGenerativeAI
@@ -202,5 +205,7 @@ def get_agent() -> StateGraph:
     """Get LangGraph agent instance."""
     global _agent
     if _agent is None:
+        logger.info("Creating LangGraph agent (first use)...")
         _agent = create_agent_graph()
+        logger.info("LangGraph agent created successfully")
     return _agent

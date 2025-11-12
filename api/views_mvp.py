@@ -3,11 +3,14 @@ Simplified MVP API - Core chatbot functionality only.
 Customer asks questions, AI responds using T2SQL + RAG.
 """
 
+import logging
 from ninja import Router
 from django.http import HttpRequest, JsonResponse
 
 from .schemas import QueryRequest, QueryResponse
 from .auth import JWTAuth, get_test_token
+
+logger = logging.getLogger('api')
 
 api_router = Router()
 jwt_auth = JWTAuth()
@@ -46,26 +49,13 @@ def chat(request: HttpRequest, query_data: QueryRequest):
     - "What are the facilities at Sobha Waves?"
     - "Show me leads with budget over 1 million"
     """
+    import time
+    start_time = time.time()
+    logger.info(f"Chat request received: query='{query_data.query[:100]}'")
+    
     try:
-        import signal
-        from contextlib import contextmanager
-        
-        @contextmanager
-        def timeout_handler(seconds):
-            """Handle timeout for agent execution."""
-            def timeout_signal(signum, frame):
-                raise TimeoutError(f"Agent execution timed out after {seconds} seconds")
-            
-            # Set signal handler
-            old_handler = signal.signal(signal.SIGALRM, timeout_signal)
-            signal.alarm(seconds)
-            try:
-                yield
-            finally:
-                signal.alarm(0)
-                signal.signal(signal.SIGALRM, old_handler)
-        
         # Lazy load the agent only when needed
+        logger.debug("Loading agent...")
         from .agent.agent import get_agent
         
         initial_state = {
@@ -75,25 +65,13 @@ def chat(request: HttpRequest, query_data: QueryRequest):
             "metadata": {}
         }
         
-        # Run agent with timeout protection (90 seconds)
-        try:
-            agent = get_agent()
-            # Use timeout only on Linux/Unix (signal.SIGALRM not available on Windows)
-            import sys
-            if sys.platform != 'win32':
-                with timeout_handler(90):
-                    final_state = agent.invoke(initial_state)
-            else:
-                final_state = agent.invoke(initial_state)
-        except TimeoutError as te:
-            return JsonResponse(
-                {
-                    "error": "Request timeout",
-                    "detail": "The query took too long to process. Please try a simpler question or try again.",
-                    "query": query_data.query
-                },
-                status=504
-            )
+        # Run agent - let Gunicorn handle timeout (120s)
+        logger.debug("Invoking agent...")
+        agent = get_agent()
+        final_state = agent.invoke(initial_state)
+        
+        elapsed = time.time() - start_time
+        logger.info(f"Chat request completed in {elapsed:.2f}s: type={final_state.get('query_type')}, response_length={len(final_state.get('response', ''))}")
         
         # Save to history
         from .models import QueryHistory
@@ -113,8 +91,10 @@ def chat(request: HttpRequest, query_data: QueryRequest):
         
     except Exception as e:
         import traceback
-        print(f"Error in chat: {e}")
-        print(traceback.format_exc())
+        elapsed = time.time() - start_time
+        error_trace = traceback.format_exc()
+        logger.error(f"Chat request failed after {elapsed:.2f}s: {str(e)}", exc_info=True)
+        logger.debug(f"Full traceback: {error_trace}")
         return JsonResponse(
             {
                 "error": "Error processing query",
