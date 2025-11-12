@@ -280,19 +280,52 @@
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
-                    body: JSON.stringify({ query: query })
+                    body: JSON.stringify({ query: query }),
+                    signal: AbortSignal.timeout(120000) // 120 second timeout
                 });
 
-                const data = await response.json();
+                // Check if response is ok before parsing JSON
+                if (!response.ok) {
+                    let errorText = 'Unknown error';
+                    try {
+                        const errorData = await response.json();
+                        errorText = errorData.error || errorData.detail || `HTTP ${response.status}`;
+                    } catch (e) {
+                        errorText = `HTTP ${response.status}: ${response.statusText}`;
+                    }
+                    addMessage('assistant', `Error: ${errorText}`, null, null, true);
+                    return;
+                }
 
-                if (response.ok) {
-                    // Add assistant response
+                // Parse JSON response
+                let data;
+                try {
+                    const text = await response.text();
+                    if (!text) {
+                        throw new Error('Empty response from server');
+                    }
+                    data = JSON.parse(text);
+                } catch (parseError) {
+                    addMessage('assistant', 'Error: Server response was invalid. The request may have timed out. Please try again with a simpler question.', null, null, true);
+                    return;
+                }
+
+                // Add assistant response
+                if (data.response) {
                     addMessage('assistant', data.response, data.query_type, data.metadata);
+                } else if (data.error) {
+                    addMessage('assistant', `Error: ${data.error}${data.detail ? ' - ' + data.detail : ''}`, null, null, true);
                 } else {
-                    addMessage('assistant', `Error: ${data.error || data.detail || 'Unknown error'}`, null, null, true);
+                    addMessage('assistant', 'Received an unexpected response format.', null, null, true);
                 }
             } catch (error) {
-                addMessage('assistant', `Error: ${error.message}`, null, null, true);
+                if (error.name === 'AbortError' || error.name === 'TimeoutError') {
+                    addMessage('assistant', 'Request timed out. The server is taking too long to respond. Please try a simpler question or try again later.', null, null, true);
+                } else if (error.name === 'TypeError' && error.message.includes('JSON')) {
+                    addMessage('assistant', 'Error: Invalid response from server. The request may have timed out. Please try again.', null, null, true);
+                } else {
+                    addMessage('assistant', `Error: ${error.message || 'Network error. Please check your connection and try again.'}`, null, null, true);
+                }
             } finally {
                 // Re-enable input
                 input.disabled = false;
