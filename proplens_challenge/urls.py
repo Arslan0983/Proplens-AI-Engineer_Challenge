@@ -6,6 +6,7 @@ from django.contrib import admin
 from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.generic import TemplateView
 from ninja import NinjaAPI
 # Use simplified MVP views for now
 from api.views_mvp import api_router
@@ -23,6 +24,8 @@ api.add_router("/", api_router)
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', api.urls),
+    path('', TemplateView.as_view(template_name='chat.html'), name='chat'),
+    path('chat/', TemplateView.as_view(template_name='chat.html'), name='chat'),
 ]
 
 # Serve media files in development

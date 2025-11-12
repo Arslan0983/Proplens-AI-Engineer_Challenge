@@ -59,3 +59,4 @@ agent_evaluation_scores.json
 .DS_Store
 Thumbs.db
 
+.git/credentials

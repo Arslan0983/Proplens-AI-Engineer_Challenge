@@ -5,6 +5,7 @@ django-cors-headers==4.3.1
 
 # Database
 psycopg2-binary==2.9.9  # For PostgreSQL (optional, SQLite is default)
+dj-database-url==2.1.0  # Parse DATABASE_URL for PostgreSQL
 
 # JWT Authentication
 pyjwt==2.8.0
