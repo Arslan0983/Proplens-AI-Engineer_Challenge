@@ -31,7 +31,7 @@ class JWTAuth(HttpBearer):
 def create_jwt_token(user_id: str, expires_delta: Optional[timedelta] = None) -> str:
     """Create a JWT token for a user."""
     if expires_delta is None:
-        expires_delta = timedelta(hours=24)
+        expires_delta = timedelta(days=7)  # Tokens valid for 7 days
     
     expire = datetime.utcnow() + expires_delta
     

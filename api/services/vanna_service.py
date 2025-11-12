@@ -2,13 +2,62 @@
 Text-to-SQL service using Vanna framework with ChromaDB.
 """
 
+import logging
 import os
 import sqlite3
 from typing import Optional, Dict, Any, List
 from django.conf import settings
-from vanna.remote import VannaDefault
+from vanna.chromadb import ChromaDB_VectorStore
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_core.messages import HumanMessage
 import chromadb
 from .database_service import DatabaseService
+
+logger = logging.getLogger('api.services')
+
+
+class GeminiChromaVanna(ChromaDB_VectorStore):
+    """Custom Vanna class combining ChromaDB vector store with Google Gemini LLM."""
+    
+    def __init__(self, config=None):
+        ChromaDB_VectorStore.__init__(self, config=config)
+        self.llm = ChatGoogleGenerativeAI(
+            model=config.get('model', 'gemini-2.0-flash-exp') if config else 'gemini-2.0-flash-exp',
+            google_api_key=config.get('api_key', '') if config else '',
+            temperature=0.1
+        )
+    
+    def system_message(self, message: str) -> dict:
+        return {"role": "system", "content": message}
+    
+    def user_message(self, message: str) -> dict:
+        return {"role": "user", "content": message}
+    
+    def assistant_message(self, message: str) -> dict:
+        return {"role": "assistant", "content": message}
+    
+    def submit_prompt(self, prompt, **kwargs) -> str:
+        """Submit prompt to Gemini LLM."""
+        try:
+            # Convert prompt to messages format if needed
+            if isinstance(prompt, str):
+                messages = [HumanMessage(content=prompt)]
+            elif isinstance(prompt, list):
+                # Convert list of dicts to LangChain messages
+                messages = []
+                for msg in prompt:
+                    if isinstance(msg, dict):
+                        messages.append(HumanMessage(content=msg.get('content', '')))
+                    else:
+                        messages.append(HumanMessage(content=str(msg)))
+            else:
+                messages = [HumanMessage(content=str(prompt))]
+            
+            response = self.llm.invoke(messages)
+            return response.content
+        except Exception as e:
+            logger.error(f"Error in submit_prompt: {e}")
+            raise
 
 
 class VannaService:
@@ -27,12 +76,19 @@ class VannaService:
             db_uri = self._get_db_uri()
             self.db_path = db_uri.replace('sqlite:///', '')
             
-            # Initialize Vanna with Gemini
-            # VannaDefault uses its own vector store (can be configured for ChromaDB)
-            self.vanna_model = VannaDefault(
-                model=settings.GEMINI_MODEL,
-                api_key=settings.GEMINI_API_KEY
-            )
+            # Initialize custom Vanna with ChromaDB + Gemini
+            chroma_config = {
+                'model': settings.GEMINI_MODEL,
+                'api_key': settings.GEMINI_API_KEY,
+                'client': chromadb.CloudClient(
+                    api_key=settings.CHROMADB_API_KEY,
+                    tenant=settings.CHROMADB_TENANT,
+                    database=settings.CHROMADB_DATABASE
+                ),
+                'collection_name': 'vanna_training'
+            }
+            
+            self.vanna_model = GeminiChromaVanna(config=chroma_config)
             
             # Connect to SQLite database
             self.vanna_model.connect_to_sqlite(self.db_path)
@@ -41,9 +97,7 @@ class VannaService:
             self._train_if_needed()
             
         except Exception as e:
-            print(f"Error initializing Vanna: {e}")
-            import traceback
-            traceback.print_exc()
+            logger.error(f"Error initializing Vanna: {e}", exc_info=True)
             self.vanna_model = None
     
     def _get_db_uri(self) -> str:

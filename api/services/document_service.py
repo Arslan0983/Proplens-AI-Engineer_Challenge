@@ -2,6 +2,7 @@
 Processes brochures (PDF/DOCX), chunks them, embeds them, and stores in ChromaDB for RAG.
 """
 
+import logging
 import os
 import uuid
 from pathlib import Path
@@ -13,6 +14,8 @@ from django.conf import settings
 from django.core.files.storage import default_storage
 from PyPDF2 import PdfReader
 import docx
+
+logger = logging.getLogger('api.services')
 
 
 class DocumentService:
