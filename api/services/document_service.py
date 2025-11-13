@@ -22,21 +22,34 @@ class DocumentService:
     """Handles brochure processing - extracts text, chunks it, embeds it, stores it."""
     
     def __init__(self):
-        self.chroma_client = chromadb.CloudClient(
-            api_key=settings.CHROMADB_API_KEY,
-            tenant=settings.CHROMADB_TENANT,
-            database=settings.CHROMADB_DATABASE
-        )
-        self.collection = self.chroma_client.get_or_create_collection(
-            name="brochures",
-            metadata={"hnsw:space": "cosine"}
-        )
-        self.embedding_model = SentenceTransformer(settings.EMBEDDING_MODEL)
+        self.chroma_client = None
+        self.collection = None
+        self.embedding_model = None
         self.text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=1000,
             chunk_overlap=200,
             length_function=len,
         )
+    
+    def _ensure_initialized(self):
+        """Lazy initialization - only connect when needed."""
+        if self.chroma_client is None:
+            logger.info("Initializing ChromaDB connection...")
+            self.chroma_client = chromadb.CloudClient(
+                api_key=settings.CHROMADB_API_KEY,
+                tenant=settings.CHROMADB_TENANT,
+                database=settings.CHROMADB_DATABASE
+            )
+            self.collection = self.chroma_client.get_or_create_collection(
+                name="brochures",
+                metadata={"hnsw:space": "cosine"}
+            )
+            logger.info("ChromaDB connected")
+        
+        if self.embedding_model is None:
+            logger.info("Loading embedding model (this may take a moment)...")
+            self.embedding_model = SentenceTransformer(settings.EMBEDDING_MODEL)
+            logger.info("Embedding model loaded")
     
     def extract_text(self, file_path: str, file_type: str) -> str:
         """Pull text out of PDF or DOCX files."""
@@ -60,6 +73,7 @@ class DocumentService:
     
     def process_document(self, file_path: str, filename: str) -> int:
         """Process a document: extract, chunk, embed, and store in ChromaDB."""
+        self._ensure_initialized()
         file_type = Path(filename).suffix.lower().lstrip('.')
         
         # Extract text
@@ -103,6 +117,7 @@ class DocumentService:
     
     def search_documents(self, query: str, n_results: int = 5) -> List[Dict[str, Any]]:
         """Search documents using semantic search."""
+        self._ensure_initialized()
         # Generate query embedding
         query_embedding = self.embedding_model.encode([query]).tolist()[0]
         
